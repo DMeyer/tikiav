@@ -1,0 +1,9 @@
+{% if guestList %}
+  <ul>
+    {% for guest in guestList %}
+      <li>{{guest.firstName}} {{guest.lastName}}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p> No guests available.</p>
+{% endif %}
