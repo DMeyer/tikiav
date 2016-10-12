@@ -1,3 +1,12 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'experience/css/style.css' %}" />
+<script src="{% static 'experience/js/script.js' %}"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<div id="player"></div>
+<button id='button'>play fullscreen</button><br>
+
 {% if guestList %}
   <ul>
     {% for guest in guestList %}
