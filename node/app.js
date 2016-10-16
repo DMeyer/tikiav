@@ -1,8 +1,11 @@
-var firebase = require('firebase');
-var swig  = require('swig');
-var express = require('express');
-var path = require('path');
-var app = express();
+const request = require('request');
+const firebase = require('firebase');
+const swig  = require('swig');
+const express = require('express');
+const path = require('path');
+const app = express();
+const spotify = require('spotify-node-applescript');
+
 
 // setup firebase client
 var config = {
@@ -36,8 +39,15 @@ app.listen(3000, function () {
 });
 
 
-// server side listening for shot events to trigger lightshow + fog
 
+// setup spotify to play tiki music
+const TIKI_PLAYLIST = 'spotify:user:hansoncraig:playlist:52sL5x2TQpKghH1ZZc2c53';
+const EVIL_LAUGH = 'https://open.spotify.com/user/laflechej/playlist/1X75r1AlrPok99h5jH9XWh';
+spotify.setRepeating(false);
+spotify.setShuffling(true);
+spotify.playTrack(TIKI_PLAYLIST);
+
+// server side listening for shot events to trigger lightshow + fog
 let newItems = false;
 firebase.database().ref('shots').orderByKey().on('child_added', snapshot => {
     if (!newItems) {
@@ -47,6 +57,17 @@ firebase.database().ref('shots').orderByKey().on('child_added', snapshot => {
     // TODO implement
     console.log('triggering Phillips Hue lightshow');
     console.log('triggering Fog Machine');
+
+    console.log('triggering evil Laughter');
+    spotify.pause();
+    setTimeout(() => {
+        spotify.playTrack(EVIL_LAUGH);
+    }, 1000);
+
+    setTimeout(() => {
+        spotify.playTrack(TIKI_PLAYLIST);
+        spotify.next();
+    }, 9000);
 });
 
 firebase.database().ref('shots').once('value', function(messages) {

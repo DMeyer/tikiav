@@ -11,7 +11,9 @@
   "dependencies": {
     "express": "^4.14.0",
     "firebase": "^3.5.0",
+    "request": "^2.75.0",
     "semantic-ui": "^2.2.4",
+    "spotify-node-applescript": "^1.0.0",
     "swig": "^1.4.2"
   },
   "devDependencies": {
