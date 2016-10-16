@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Fjalla+One">
+    
+    <style>
+        body {
+            background-color: black;
+        }
+        .video {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            padding-top: 25px;
+            height: 0;
+        }
+        .video iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        @keyframes maskColor {
+            0%   {background-color: #0D2C56;}
+            35% {background-color: #065443;}
+            70% {background-color: #340651;}
+            100% {background-color: #9b0707;}
+        }
+
+
+        @keyframes textVisibility {
+            from {opacity: 0}
+            to {opacity: 1}
+        }
+        
+        .shot-animation {
+            background-color: #9b0707;
+            animation-name: maskColor;
+            animation-duration: 5s;
+            animation-iteration-count: 1;
+            animation-timing-function: ease-out;
+            width: 100%;
+            height: 100%;
+            -webkit-mask-image: url(/static/tiki.png);
+            -webkit-mask-size: contain;
+            -webkit-mask-position: center;
+            -webkit-mask-repeat: no-repeat;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: -10;
+        }
+
+        .name-animation {
+            margin-top: 1em;
+            animation-name: textVisibility;
+            animation-duration: 8s;
+            animation-iteration-count: 1;
+            animation-timing-function: ease-in;
+            font-family: "Fjalla One";
+            font-weight: 400;
+            font-style: normal;
+            font-size: 7em;
+            color: #888;
+            opacity: 1;
+            text-align:center;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+
+    <script>
+        $(document).ready(() => {
+            // firebase init
+            var config = {
+                apiKey: 'AIzaSyB7XAbfFB96EceIjTDoNixssz7iXV5N18s',
+                authDomain: 'projectId.firebaseapp.com',
+                databaseURL: 'https://tikiav-cfcbf.firebaseio.com/',
+            };
+            firebase.initializeApp(config);
+
+            let newItems = false;
+            firebase.database().ref('shots').orderByKey().on('child_added', snapshot => {
+                // ignore callbacks for old events
+                if (!newItems) {
+                    return;
+                }
+
+                // set the victim's name
+                const victim = snapshot.val();
+                console.log('shot for' + victim);
+                $('.victim-name').text(victim);
+
+                // restart CSS animations
+                $('.shot').addClass('shot-animation');
+                $('.victim-name').addClass('name-animation');
+                $('.shot').css('webkitAnimation', 'none');
+                $('.victim-name').css('webkitAnimation', 'none');
+                setTimeout(function() {
+                    $('.shot').css('webkitAnimation', '');
+                    $('.victim-name').css('webkitAnimation', '');
+                }, 10);
+                
+                // show the shot experience 
+                $('.av-experience').addClass('hidden');
+                $('.shot-experience').removeClass('hidden');
+
+                // reset in 15s
+                window.setTimeout(() => {
+                    $('.av-experience').removeClass('hidden');
+                    $('.shot-experience').addClass();('hidden');
+                    $('.shot').removeClass('shot-animation');
+                    $('.victim-name').removeClass('name-animation');
+                }, 15 * 1000); 
+            })
+
+            firebase.database().ref('shots').once('value', function(messages) {
+                  newItems = true;
+            });
+            
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    
+    <div class="av-experience">
+        <div class="normal-view">
+            <div class="video">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/KwkgyqA2Ef0" frameborder="0" allowfullscreen></iframe>
+            </div>
+
+            <iframe src="https://embed.spotify.com/?uri=spotify%3Auser%3Ahansoncraig%3Aplaylist%3A52sL5x2TQpKghH1ZZc2c53" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+        </div>
+    </div>
+
+    <div class="shot-experience hidden">
+        <div class="victim-name">
+            Some Human
+        </div>
+        <div class="shot">
+        </div>
+    </div>
+{% endblock %}}
+

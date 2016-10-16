@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+    .clicked {
+        background-color: red;
+    }
+</style>
+<script>
+    $(document).ready(() => {
+        // firebase init
+        var config = {
+            apiKey: 'AIzaSyB7XAbfFB96EceIjTDoNixssz7iXV5N18s',
+            authDomain: 'projectId.firebaseapp.com',
+            databaseURL: 'https://tikiav-cfcbf.firebaseio.com/',
+        };
+        firebase.initializeApp(config);
+
+        // add guest callback
+        function addGuest() {
+            const guestName = $('.guest-name').val()
+            if (guestName) {
+                firebase.database().ref('guests').push(guestName);
+                $('.guest-name').val('');
+            }
+        }
+        $('.add-guest').click(addGuest)
+        $('.guest-name').keydown((e) => {
+            if (e.keyCode == 13) {
+                addGuest();
+            }
+        });
+
+        // render guests whenever data changes
+        let guests = [];
+        firebase.database().ref('guests').on('value', snapshot => {
+
+            // add an entry for each guest in the guest list
+            $('.guest-list').contents().remove(); 
+            $.each(snapshot.val(), (index, name) => {
+                $('.guest-list').append(`<div class="item"> <a id="${index}"><i id="${index}" class="icon close"></i></a> ${name}</div>`);
+                guests.push(name);
+            }); 
+        
+            // register delete callback
+            $('.close').click((event) => {
+                const guestName = event.target.id;
+                firebase.database().ref(`guests/${guestName}`).remove()
+                    .catch(function(error) {
+                      console.log("Remove failed: " + error.message)
+                    });
+            });
+        });
+
+        
+        // when shots are requested
+        $('.shots').click(() => {
+            if (! $('.shots').hasClass('clicked')) {
+                // mark button is clicked
+                $('.shots').addClass('clicked')
+                window.setTimeout(() => {
+                    $('.shots').removeClass('clicked')
+                }, 5000);
+
+                // select a random guest - append to shot log
+                const victim = guests[Math.floor(Math.random() * guests.length)];
+                firebase.database().ref('shots').push(victim);
+            }
+        });
+        
+    });
+</script>
+
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui text container">
+        <br />
+        <h1 class="ui center aligned dividing header">Tiki Admin</h1>
+        <br />
+
+        <div class="ui stackable grid">
+            <div class="six wide column ui segment">
+                <h4>Guest List</h4>
+                <div class="ui divided list guest-list">
+                </div>
+                <div class="ui action input">
+                    <input class="guest-name" type="text" placeholder="Guest Name">
+                    <button class="ui violet button add-guest">Add</button>
+                </div>  
+            </div>
+            <div class="one wide column"></div>
+            <div class="eight wide column">
+                <h2 class="ui center aligned header">Shot!</h2>
+                <a href="#" class="ui huge circular bordered image shots">
+                    <img src="/static/tiki.png" class="shots">
+                </a>
+            </div>
+            
+        </div>
+    </div>
+{% endblock %}}
