@@ -13,10 +13,14 @@
     "firebase": "^3.5.0",
     "request": "^2.75.0",
     "semantic-ui": "^2.2.4",
+    "serialport": "^4.0.3",
     "spotify-node-applescript": "^1.0.0",
     "swig": "^1.4.2"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
+  },
+  "jshintConfig": {
+    "esnext": true
   }
 }

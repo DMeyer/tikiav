@@ -4,7 +4,8 @@ const swig  = require('swig');
 const express = require('express');
 const path = require('path');
 const app = express();
-const spotify = require('spotify-node-applescript');
+const SerialPort = require("serialport");
+// const spotify = require('spotify-node-applescript');
 
 
 // setup firebase client
@@ -14,6 +15,12 @@ var config = {
     databaseURL: 'https://tikiav-cfcbf.firebaseio.com/',
 };
 firebase.initializeApp(config);
+
+var fogMachineSerialPort = new SerialPort('COM3', {
+  baudRate: 9600,
+  parser: SerialPort.parsers.readline('\n')
+});
+
 
 // static files in 'static' directory
 app.use('/static', express.static('static'));
@@ -39,13 +46,51 @@ app.listen(3000, function () {
 });
 
 
+function turnOnFog() {
+  fogMachineSerialPort.write('on\n');
+}
+
+function turnOffFog() {
+  fogMachineSerialPort.write('off\n');
+}
+
+fogMachineSerialPort.on('data', (data) => {
+  console.log('|'+data+'|');
+  console.log(data.trim() === 'ready');
+  firebase.database().ref('fogReady').set(data.trim() === 'ready');
+});
+
+function isFogReady() {
+  if (fogMachineSerialPort.isOpen()) {
+    fogMachineSerialPort.write('state\n');
+  }
+}
+
+function fogReadyLoop() {
+  if (fogMachineSerialPort.isOpen()) {
+    isFogReady();
+  }
+}
+
+function fogForSomeTime() {
+  turnOnFog();
+  setTimeout(turnOffFog, 5000);
+}
+
+setInterval(fogReadyLoop, 5000);
 
 // setup spotify to play tiki music
 const TIKI_PLAYLIST = 'spotify:user:hansoncraig:playlist:52sL5x2TQpKghH1ZZc2c53';
 const EVIL_LAUGH = 'https://open.spotify.com/user/laflechej/playlist/1X75r1AlrPok99h5jH9XWh';
-spotify.setRepeating(false);
-spotify.setShuffling(true);
-spotify.playTrack(TIKI_PLAYLIST);
+// spotify.setRepeating(false);
+// spotify.setShuffling(true);
+// spotify.playTrack(TIKI_PLAYLIST);
+
+// listen for fog events
+firebase.database().ref('fog').on('value', snapshot => {
+   fogForSomeTime();
+});
+
 
 // server side listening for shot events to trigger lightshow + fog
 let newItems = false;
@@ -54,20 +99,21 @@ firebase.database().ref('shots').orderByKey().on('child_added', snapshot => {
         return;
     }
 
-    // TODO implement
+    fogForSomeTime();
     console.log('triggering Phillips Hue lightshow');
     console.log('triggering Fog Machine');
 
-    console.log('triggering evil Laughter');
-    spotify.pause();
-    setTimeout(() => {
-        spotify.playTrack(EVIL_LAUGH);
-    }, 1000);
 
-    setTimeout(() => {
-        spotify.playTrack(TIKI_PLAYLIST);
-        spotify.next();
-    }, 9000);
+    console.log('triggering evil Laughter');
+    // // spotify.pause();
+    // setTimeout(() => {
+    //     spotify.playTrack(EVIL_LAUGH);
+    // }, 1000);
+    //
+    // setTimeout(() => {
+    //     // spotify.playTrack(TIKI_PLAYLIST);
+    //     // spotify.next();
+    // }, 9000);
 });
 
 firebase.database().ref('shots').once('value', function(messages) {
