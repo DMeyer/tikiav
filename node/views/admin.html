@@ -2,20 +2,16 @@
 
 {% block head %}
 <style>
-    .clicked {
+    .shots.clicked {
         background-color: red;
+    }
+
+    .fog.clicked {
+        background-color: #efefef;
     }
 </style>
 <script>
     $(document).ready(() => {
-        // firebase init
-        var config = {
-            apiKey: 'AIzaSyB7XAbfFB96EceIjTDoNixssz7iXV5N18s',
-            authDomain: 'projectId.firebaseapp.com',
-            databaseURL: 'https://tikiav-cfcbf.firebaseio.com/',
-        };
-        firebase.initializeApp(config);
-
         // add guest callback
         function addGuest() {
             const guestName = $('.guest-name').val()
@@ -52,6 +48,17 @@
             });
         });
 
+        firebase.database().ref('fogReady').on('value', snapshot => {
+            if (snapshot.val() === true) {
+                $('.fogReady').removeClass('red')
+                $('.fogReady').addClass('green')
+            }
+            else {
+                $('.fogReady').removeClass('green')
+                $('.fogReady').addClass('red')
+            }
+        });
+
         
         // when shots are requested
         $('.shots').click(() => {
@@ -67,6 +74,18 @@
                 firebase.database().ref('shots').push(victim);
             }
         });
+
+        $('.fog').click(() => {
+            console.log('fogg');
+            if (! $('.fog').hasClass('clicked')) {
+                // mark button is clicked
+                $('.fog').addClass('clicked')
+                window.setTimeout(() => {
+                    $('.fog').removeClass('clicked')
+                }, 5000);
+                firebase.database().ref('fog').set(true);
+            }
+        });
         
     });
 </script>
@@ -75,13 +94,13 @@
 
 {% block body %}
 
-    <div class="ui text container">
+    <div class="ui container">
         <br />
         <h1 class="ui center aligned dividing header">Tiki Admin</h1>
         <br />
 
         <div class="ui stackable grid">
-            <div class="six wide column ui segment">
+            <div class="four wide column ui segment">
                 <h4>Guest List</h4>
                 <div class="ui divided list guest-list">
                 </div>
@@ -90,14 +109,26 @@
                     <button class="ui violet button add-guest">Add</button>
                 </div>  
             </div>
+
             <div class="one wide column"></div>
-            <div class="eight wide column">
+
+            <div class="ui five wide column">
                 <h2 class="ui center aligned header">Shot!</h2>
-                <a href="javascript:undefined" class="ui huge circular bordered image shots">
+                <a href="javascript:undefined" class="ui large circular bordered image shots">
                     <img src="/static/tiki.png" class="shots">
                 </a>
             </div>
-            
+
+            <div class="one wide column"></div>
+
+            <div class="ui five wide column">
+                <h2 class="ui center aligned header">Fog</h2>
+                <a href="javascript:undefined" class="ui large circular bordered image fog">
+                    <img src="/static/fog.png" class="fog">
+                </a>
+                <i class="ui bordered large idea circular inverted icon fogReady"></i>
+            </div>
+
         </div>
     </div>
 {% endblock %}}

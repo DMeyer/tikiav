@@ -10,12 +10,24 @@
         <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
         <script src="/static/semantic/dist/semantic.min.js"></script>
         <script src='https://www.gstatic.com/firebasejs/3.0.5/firebase.js'></script>
-
+        <script type="text/javascript">
+            $(document).ready(() => {
+                // firebase init
+                var config = {
+                    apiKey: 'AIzaSyB7XAbfFB96EceIjTDoNixssz7iXV5N18s',
+                    authDomain: 'projectId.firebaseapp.com',
+                    databaseURL: 'https://tikiav-cfcbf.firebaseio.com/',
+                };
+                firebase.initializeApp(config);
+            });
+        </script>
+            
         {% block head %}
         {% endblock %}
     </head>
 
     <body>
+        <div id="firebaseui-auth-container"></div>
         {% block body %}
         {% endblock %}
     </body>

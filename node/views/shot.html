@@ -74,14 +74,6 @@
 
     <script>
         $(document).ready(() => {
-            // firebase init
-            var config = {
-                apiKey: 'AIzaSyB7XAbfFB96EceIjTDoNixssz7iXV5N18s',
-                authDomain: 'projectId.firebaseapp.com',
-                databaseURL: 'https://tikiav-cfcbf.firebaseio.com/',
-            };
-            firebase.initializeApp(config);
-
             let newItems = false;
             firebase.database().ref('shots').orderByKey().on('child_added', snapshot => {
                 // ignore callbacks for old events
