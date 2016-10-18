@@ -76,14 +76,13 @@
         });
 
         $('.fog').click(() => {
-            console.log('fogg');
             if (! $('.fog').hasClass('clicked')) {
                 // mark button is clicked
                 $('.fog').addClass('clicked')
                 window.setTimeout(() => {
                     $('.fog').removeClass('clicked')
                 }, 5000);
-                firebase.database().ref('fog').set(true);
+                firebase.database().ref('fog').set(Date.now());
             }
         });
         
