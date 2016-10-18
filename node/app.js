@@ -1,12 +1,23 @@
-const request = require('request');
 const firebase = require('firebase');
 const swig  = require('swig');
 const express = require('express');
 const path = require('path');
 const app = express();
-const SerialPort = require("serialport");
-// const spotify = require('spotify-node-applescript');
+const SerialPort = require('serialport');
+let spotify = require('spotify-node-applescript');
 
+// hack because Derek didn't buy a macbook pro
+const IS_DEREK = false;
+if (IS_DEREK) {
+    spotify = {
+        next: () => {},
+        pause: () => {},
+        playTrack: () => {},
+        setRepeating: () => {},
+        setShuffling: () => {},
+        shuffleTrack: () => {},
+    };
+}
 
 // setup firebase client
 var config = {
@@ -16,10 +27,12 @@ var config = {
 };
 firebase.initializeApp(config);
 
-var fogMachineSerialPort = new SerialPort('COM3', {
-  baudRate: 9600,
-  parser: SerialPort.parsers.readline('\n')
-});
+if (IS_DEREK) {
+    var fogMachineSerialPort = new SerialPort('COM3', {
+      baudRate: 9600,
+      parser: SerialPort.parsers.readline('\n')
+    });
+}
 
 
 // static files in 'static' directory
@@ -46,6 +59,8 @@ app.listen(3000, function () {
 });
 
 
+// TODO move into fog.js
+
 function turnOnFog() {
   fogMachineSerialPort.write('on\n');
 }
@@ -53,12 +68,6 @@ function turnOnFog() {
 function turnOffFog() {
   fogMachineSerialPort.write('off\n');
 }
-
-fogMachineSerialPort.on('data', (data) => {
-  console.log('|'+data+'|');
-  console.log(data.trim() === 'ready');
-  firebase.database().ref('fogReady').set(data.trim() === 'ready');
-});
 
 function isFogReady() {
   if (fogMachineSerialPort.isOpen()) {
@@ -77,18 +86,27 @@ function fogForSomeTime() {
   setTimeout(turnOffFog, 5000);
 }
 
-setInterval(fogReadyLoop, 5000);
+if (IS_DEREK) {
+    fogMachineSerialPort.on('data', (data) => {
+      firebase.database().ref('fogReady').set(data.trim() === 'ready');
+    });
+
+    setInterval(fogReadyLoop, 5000);
+}
 
 // setup spotify to play tiki music
 const TIKI_PLAYLIST = 'spotify:user:hansoncraig:playlist:52sL5x2TQpKghH1ZZc2c53';
 const EVIL_LAUGH = 'https://open.spotify.com/user/laflechej/playlist/1X75r1AlrPok99h5jH9XWh';
-// spotify.setRepeating(false);
-// spotify.setShuffling(true);
-// spotify.playTrack(TIKI_PLAYLIST);
+spotify.setRepeating(false);
+spotify.setShuffling(true);
+spotify.playTrack(TIKI_PLAYLIST);
+
 
 // listen for fog events
 firebase.database().ref('fog').on('value', snapshot => {
-   fogForSomeTime();
+    if (IS_DEREK) {
+       fogForSomeTime();
+    }
 });
 
 
@@ -99,21 +117,24 @@ firebase.database().ref('shots').orderByKey().on('child_added', snapshot => {
         return;
     }
 
-    fogForSomeTime();
-    console.log('triggering Phillips Hue lightshow');
     console.log('triggering Fog Machine');
+    if (IS_DEREK) {
+        fogForSomeTime();
+    }
 
+    console.log('triggering Phillips Hue lightshow');
+    // TODO HUE
 
+    // play laughter - queue up music after
     console.log('triggering evil Laughter');
-    // // spotify.pause();
-    // setTimeout(() => {
-    //     spotify.playTrack(EVIL_LAUGH);
-    // }, 1000);
-    //
-    // setTimeout(() => {
-    //     // spotify.playTrack(TIKI_PLAYLIST);
-    //     // spotify.next();
-    // }, 9000);
+    setTimeout(() => {
+        spotify.playTrack(EVIL_LAUGH);
+    }, 1000);
+
+    setTimeout(() => {
+        spotify.playTrack(TIKI_PLAYLIST);
+        spotify.next();
+    }, 9000);
 });
 
 firebase.database().ref('shots').once('value', function(messages) {
