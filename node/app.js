@@ -104,6 +104,10 @@ spotify.playTrack(TIKI_PLAYLIST);
 
 // listen for fog events
 firebase.database().ref('fog').on('value', snapshot => {
+    if (!newItems) {
+        return;
+    }
+
     if (IS_DEREK) {
        fogForSomeTime();
     }
