@@ -2,18 +2,20 @@
 
 {% block head %}
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Fjalla+One">
+    <script src="https://www.youtube.com/iframe_api"></script>
+    
     
     <style>
         body {
             background-color: black;
         }
-        .video {
+        #video-wrap {
             position: relative;
             padding-bottom: 56.25%; /* 16:9 */
             padding-top: 25px;
             height: 0;
         }
-        .video iframe {
+        iframe {
             position: absolute;
             top: 0;
             left: 0;
@@ -73,6 +75,29 @@
     </style>
 
     <script>
+
+
+        let player = null;
+        function onYouTubeIframeAPIReady() {
+            const tikiVideoId = 'LUA1fq-AKQs';
+            player = new YT.Player('video', {
+                videoId: tikiVideoId,
+                events: {
+                    onReady: onPlayerReady
+                },
+                playerVars: {
+                  playlist: tikiVideoId,
+                  loop: 1
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            console.log('doublesup');
+            event.target.playVideo();
+            player.mute();
+        }
+
         $(document).ready(() => {
             let newItems = false;
             firebase.database().ref('shots').orderByKey().on('child_added', snapshot => {
@@ -121,8 +146,9 @@
     
     <div class="av-experience">
         <div class="normal-view">
-            <div class="video">
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/LUA1fq-AKQs" frameborder="0" allowfullscreen></iframe>
+            <div id="video-wrap">
+                <div id="video">
+                </div>
             </div>
         </div>
     </div>
