@@ -76,24 +76,23 @@
 
     <script>
 
-
         let player = null;
         function onYouTubeIframeAPIReady() {
             const tikiVideoId = 'LUA1fq-AKQs';
+            const tikiPlaylistId = 'PLVdVV6A7BZ6i4E_WGRTnhGKv64bxEq-4Y';
             player = new YT.Player('video', {
                 videoId: tikiVideoId,
                 events: {
                     onReady: onPlayerReady
                 },
                 playerVars: {
-                  playlist: tikiVideoId,
-                  loop: 1
                 }
             });
         }
 
         function onPlayerReady(event) {
-            console.log('doublesup');
+            player.setLoop(true);
+            player.loadPlaylist({playlist: ['LUA1fq-AKQs', 'G7Hi9CDZOaw', 'GgtcOmlput8']});
             event.target.playVideo();
             player.mute();
         }

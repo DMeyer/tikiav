@@ -4,18 +4,22 @@
   "description": "Tiki Audio Visual Extravaganza",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app"
+    "start": "nodemon app",
+    "repl": "node"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.14.0",
     "firebase": "^3.5.0",
+    "huejay": "^1.4.1",
+    "node-hue-api": "^2.3.0",
     "request": "^2.75.0",
     "semantic-ui": "^2.2.4",
     "serialport": "^4.0.3",
     "spotify-node-applescript": "^1.0.0",
-    "swig": "^1.4.2"
+    "swig": "^1.4.2",
+    "tty": "^1.0.1"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
