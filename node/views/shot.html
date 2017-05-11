@@ -78,10 +78,7 @@
 
         let player = null;
         function onYouTubeIframeAPIReady() {
-            const tikiVideoId = 'LUA1fq-AKQs';
-            const tikiPlaylistId = 'PLVdVV6A7BZ6i4E_WGRTnhGKv64bxEq-4Y';
             player = new YT.Player('video', {
-                videoId: tikiVideoId,
                 events: {
                     onReady: onPlayerReady
                 },
@@ -92,7 +89,7 @@
 
         function onPlayerReady(event) {
             player.setLoop(true);
-            player.loadPlaylist({playlist: ['LUA1fq-AKQs', 'G7Hi9CDZOaw', 'GgtcOmlput8']});
+            player.loadPlaylist({playlist: ['8t3XYNxnUBs']});
             event.target.playVideo();
             player.mute();
         }

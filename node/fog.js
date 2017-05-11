@@ -1,3 +1,4 @@
+"use strict";
 const SerialPort = require('serialport');
 
 const PORT = '/dev/cu.usbserial-A9007QmY';

@@ -31,6 +31,8 @@
         let guests = [];
         firebase.database().ref('guests').on('value', snapshot => {
 
+            guests = [];
+
             // add an entry for each guest in the guest list
             $('.guest-list').contents().remove(); 
             $.each(snapshot.val(), (index, name) => {
@@ -44,7 +46,7 @@
                 firebase.database().ref(`guests/${guestName}`).remove()
                     .catch(function(error) {
                       console.log("Remove failed: " + error.message)
-                    });
+                });
             });
         });
 
@@ -71,6 +73,7 @@
 
                 // select a random guest - append to shot log
                 const victim = guests[Math.floor(Math.random() * guests.length)];
+                console.log(`chose ${victim} from ${guests}`);
                 firebase.database().ref('shots').push(victim);
             }
         });
